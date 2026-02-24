@@ -33,16 +33,16 @@ public class BlueprintController {
   @MessageMapping("/draw")
   public void onDraw(DrawEvent evt) {
     try {
-      System.out.println("📩 Recibido evento de dibujo: " + evt);
+      System.out.println(" Recibido evento de dibujo: " + evt);
       
       // 1. Guardar el nuevo punto en la API REST (8081) usando PUT
       String addPointUrl = REST_API_URL + "/api/v1/blueprints/" + evt.author() + "/" + evt.name() + "/points";
-      System.out.println("📤 PUT a: " + addPointUrl);
+      System.out.println("PUT a: " + addPointUrl);
       restTemplate.put(addPointUrl, evt.point());
 
       // 2. Obtener el blueprint completo con todos los puntos
       String getBlueprintUrl = REST_API_URL + "/api/v1/blueprints/" + evt.author() + "/" + evt.name();
-      System.out.println("📥 GET desde: " + getBlueprintUrl);
+      System.out.println("GET desde: " + getBlueprintUrl);
       
       // Obtener la respuesta como Map para extraer el 'data'
       ResponseEntity<Map> response = restTemplate.getForEntity(getBlueprintUrl, Map.class);
@@ -50,19 +50,19 @@ public class BlueprintController {
       
       if (apiResponse != null && apiResponse.containsKey("data")) {
         Object blueprintData = apiResponse.get("data");
-        System.out.println("📦 Blueprint data: " + blueprintData);
+        System.out.println("Blueprint data: " + blueprintData);
         
         // Convertir el data a BlueprintUpdate
         BlueprintUpdate blueprint = objectMapper.convertValue(blueprintData, BlueprintUpdate.class);
         
         // 3. Enviar el blueprint completo al topic
         String topic = "/topic/blueprints." + evt.author() + "." + evt.name();
-        System.out.println("📤 Enviando a topic: " + topic + " con " + blueprint.points().size() + " puntos");
+        System.out.println("Enviando a topic: " + topic + " con " + blueprint.points().size() + " puntos");
         template.convertAndSend(topic, blueprint);
-        System.out.println("✅ Mensaje enviado exitosamente");
+        System.out.println("Mensaje enviado exitosamente");
       }
     } catch (Exception e) {
-      System.err.println("❌ Error al procesar el punto: " + e.getMessage());
+      System.err.println("Error al procesar el punto: " + e.getMessage());
       e.printStackTrace();
     }
   }
